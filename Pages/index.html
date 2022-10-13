@@ -10,13 +10,9 @@
     <form>  
         <div class="container">   
             <label>Username : </label>   
-            <input type="text" placeholder="Enter Username" name="username" required>  
-            <label>Password : </label>   
-            <input type="password" placeholder="Enter Password" name="password" required>  
-            <button type="submit">Login</button>   
-            <input type="checkbox" checked="checked"> Remember me   
+            <input id="emailLogin" type="text" placeholder="Enter email" name="email" required oninput="testInput()">  
+            <button type="submit" id="submitbtn">Start</button>   
             <button type="button" class="cancelbtn"> Cancel</button>   
-            Forgot <a href="#"> password? </a>   
         </div>   
     </form> 
     <script src="../Scripts/index.ts"></script>    

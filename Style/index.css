@@ -10,7 +10,10 @@ button {
         margin: 10px 0px;   
         border: none;   
         cursor: pointer;   
-         }   
+         }  
+button :disabled{
+  color: grey;
+} 
  form {   
         border: 3px solid #f1f1f1;   
     }   
