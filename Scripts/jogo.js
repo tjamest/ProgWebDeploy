@@ -47,14 +47,50 @@ class Player{
 
     }
 
+class Projetil{
+    constructor({position,speed}){
+        this.position = position
+        this.speed = speed
+        this.radius = 20
+
+    }
+
+    draw(){
+        c.beginPath()
+        c.arc(this.position.x,
+            this.position.y,
+            this.radius,
+            0,
+            Math.PI * 2)
+        c.fillStyle = 'red'
+        c.fill
+        c.closePath()
+    }
+
+    update(){
+        this.draw()
+        this.position.x += this.speed.x
+        this.position.y += this.speed.y
+    }
+}
+
     
 
 
 const player = new Player()
-
+const projetils = [new Projetil({
+    position: {
+        x:300,
+        y:300
+    },
+    speed: {
+        x:0,
+        y:0
+    }
+})]
 player.draw()
 
-const keys = {
+const keys = { //define como padrão de começo de jogo não ter nenhuma tecla pressionada.
     a:{
         pressed: false
         
@@ -70,17 +106,20 @@ const keys = {
 function animation() {
     requestAnimationFrame(animation)
     //console.log('teste')
-    c.fillStyle = 'black'
+    c.fillStyle = 'black' 
     c.fillRect(0,0,canvas.width,canvas.height)
     player.update() //desenha , atualiza speed
+    projetils.forEach(Projetil => {
+        Projetil.update()
+    })
 
-    if(keys.a.pressed){
+    if(keys.a.pressed && player.position.x >= 0){ //velocidade ao usar a tecla a para ir para esquerda
         player.speed.x = -5
-    }else if (keys.d.pressed) {
+    }else if (keys.d.pressed && player.position.x +player.width <= canvas.width ) {//velocidade ao usar a tecla d para ir para direita
         player.speed.x = 5
     }
     else {
-        player.speed.x = 0
+        player.speed.x = 0 //parar de andar
     }
 }
 
@@ -89,7 +128,7 @@ animation()
 
 
 
-addEventListener('keydown',(event) =>{
+addEventListener('keydown',(event) =>{ //captura uso das teclas a,d,espaço
     //console.log(event.key)
     switch (event.key){
         case 'a':
@@ -103,12 +142,22 @@ addEventListener('keydown',(event) =>{
             break
 
         case ' ' ://captura a tecla de espaço
-        keys.espaco.pressed = true 
+        console.log("espaco")
+        projetils.push(new Projetil({
+            position: {
+                x:300,
+                y:300
+            },
+            speed: {
+                x: 0,
+                y: -5
+            }
+        }))
             break
     }
 })
 
-addEventListener('keyup',(event) =>{
+addEventListener('keyup',(event) =>{ //captura soltar as teclas a,d, espaço
     // console.log(event.key)
     switch (event.key){
         case 'a':
@@ -119,9 +168,7 @@ addEventListener('keyup',(event) =>{
             keys.d.pressed = false
             break
 
-        case ' ' ://captura a tecla de espaço
-            
-            break
+
     }
 })
 
