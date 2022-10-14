@@ -1,20 +1,30 @@
-<!DOCTYPE html>   
-<html>   
-<head>  
-<meta name="viewport" content="width=device-width, initial-scale=1">  
-<title> Login Page </title>  
-<link rel="stylesheet" type="text/css" href="../Style/index.css" />  
-</head>    
-<body>    
-    <center> <h1> Student Login Form </h1> </center>   
-    <form>  
-        <div class="container">   
-            <label>Username : </label>   
-            <input id="emailLogin" type="text" placeholder="Enter email" name="email" required oninput="testInput()">  
-            <button type="submit" id="submitbtn">Start</button>   
-            <button type="button" class="cancelbtn"> Cancel</button>   
-        </div>   
-    </form> 
-    <script src="../Scripts/index.ts"></script>    
-</body>     
-</html>  
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title> Login Page </title>
+    <link rel="stylesheet" type="text/css" href="../Style/index.css" />
+</head>
+
+<body>
+    <script type="text/javascript" src="../Scripts/index.js"></script>
+    <center>
+        <h1> Game login form </h1>  
+    </center>
+    <form action="jogo.html?action=dificuldade">
+        <div class="container">
+            <label>Email : </label>
+            <input id="emailLogin" type="text" placeholder="Enter email" name="email" required>
+            <div id="selector">
+                <select aria-label="Escolha a dificuldade" id="dificuldade" name="dificuldade">
+                </select>
+            </div>
+            <button type="submit" id="submitbtn" disabled >Start</button>
+            <span id="errorDificuldade" class="error"></span>
+            <span id="error" class="error"></span>
+        </div>
+    </form>
+</body>
+
+</html>

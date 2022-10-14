@@ -1,6 +1,8 @@
 const canvas = document.querySelector("canvas")
 const c = canvas.getContext("2d")
 
+const urlParams = new URLSearchParams(window.location.search);
+const dificuldade = urlParams.get('dificuldade');
 
 canvas.width = innerWidth
 canvas.height = innerHeight
