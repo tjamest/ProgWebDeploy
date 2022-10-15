@@ -1,11 +1,13 @@
 const canvas = document.querySelector("canvas")
+const scoreEl = document.querySelector("#scoreEl")
 const c = canvas.getContext("2d")
+
 
 const urlParams = new URLSearchParams(window.location.search);
 const dificuldade = urlParams.get('dificuldade');
 
-canvas.width = innerWidth
-canvas.height = innerHeight
+canvas.width = 1024 
+canvas.height = 576
 
 // ta funcionando
 class Player{
@@ -15,6 +17,7 @@ class Player{
             x: 0,
             y: 0
         }
+        this.opacity = 1
         const imagem =  new Image()
         imagem.src = '../Imagens/spaceship.png'
         imagem.onload = () =>{
@@ -30,10 +33,15 @@ class Player{
     }
 
     draw(){
+        c.save()
+        c.globalAlpha = this.opacity
+        
         //c.fillStyle = 'red'
         //c.fillRect(this.position.x, this.position.y,this.width,this.height)
         if(this.imagem) 
             c.drawImage(this.imagem, this.position.x,this.position.y,this.width,this.height)
+
+        c.restore()
     }
 
     update() {
@@ -176,13 +184,14 @@ class Projectile {
 }
 
 class Particle {
-    constructor({ position, speed,radius, color = 'white' }) {
+    constructor({ position, speed,radius, color ,fades }) {
       this.position = position
       this.speed = speed
   
       this.radius = radius
       this.color = color
       this.opacity = 1
+      this.fades = fades 
     }
   
     draw() {
@@ -200,6 +209,7 @@ class Particle {
       this.draw()
       this.position.x += this.speed.x
       this.position.y += this.speed.y
+      if(this.fades)
       this.opacity -= 0.01
     }
   }
@@ -258,9 +268,48 @@ const keys = { //define como padrão de começo de jogo não ter nenhuma tecla p
 
 let frames = 0
 let spawninteval = (Math.floor(Math.random() * 500) + 500)
+let game = {
+    over: false,
+    active: true
+}
+
+let score = 0
+
+for (let i = 0; i<100; i++){
+    particles.push(new Particle({
+        position: {
+            x:Math.random()* canvas.width,
+            y:Math.random()* canvas.height
+        },
+        speed : {
+            x: 0,
+            y: 0.45
+        },
+        radius :Math.random() * 3,
+        color: 'white' 
+    }))
+}
+
+function createParticles({object,color,fades}){
+    for (let i = 0; i<15; i++){
+        particles.push(new Particle({
+            position: {
+                x:object.position.x + object.width/2,
+                y:object.position.y + object.height/2
+            },
+            speed : {
+                x: (Math.random() - 0.5) * 2,
+                y: (Math.random() - 0.5) * 2
+            },
+            radius :Math.random() * 3,
+            color: color || '#BAA0DE',
+            fades 
+        }))
+    }
+}
 
 function animation() {
-    var vetcolor = ['yellow','blue','white']
+    if(!game.active) return
     requestAnimationFrame(animation)
     //console.log('teste')
     c.fillStyle = 'black' 
@@ -268,6 +317,10 @@ function animation() {
     
     player.update() //desenha , atualiza speed player
     particles.forEach((particle,i) =>{
+        if(particle.position.y - particle.radius >= canvas.height){
+            particle.position.x = Math.random() * canvas.width
+            particle.position.y = - particle.radius
+        }
         if(particle.opacity <= 0){
             setTimeout(() => {
                 particles.splice(i,1) 
@@ -284,11 +337,31 @@ function animation() {
                 InvaderProjectiles.splice(index,1)
             },0)
         } else InvaderProjectile.update()
-         //tomou tiro do inimigo colisão
+
+
+
+         //player  toma tiro do inimigo colisão
         if(InvaderProjectile.position.y + InvaderProjectile.height >= player.position.y &&
              InvaderProjectile.position.x + InvaderProjectile.width >=player.position.x && 
-             InvaderProjectile.position.x <= player.position.x + player.width)
-        console.log("end game")
+             InvaderProjectile.position.x <= player.position.x + player.width){
+                console.log("end game")
+                setTimeout(() => {
+                    InvaderProjectiles.splice(index,1)
+                    player.opacity = 0
+                    game.over = true
+                },0)
+
+                setTimeout(() => {
+                    game.active = false
+                },2000)
+                
+                createParticles({
+                    object: player,
+                    color: 'white',
+                    fades: true
+                }) 
+             }
+        
     })
 
 
@@ -315,21 +388,12 @@ function animation() {
                      projectile.position.x + projectile.radius >= invader.position.x && 
                      projectile.position.x - projectile.radius <= invader.position.x + invader.width &&
                      projectile.position.y + projectile.radius >= invader.position.y){ //GAMBIARRA DE COLISÃO
-
-                        for (let i = 0; i<15; i++){
-                            particles.push(new Particle({
-                                position: {
-                                    x:invader.position.x + invader.width/2,
-                                    y:invader.position.y + invader.height/2
-                                },
-                                speed : {
-                                    x: (Math.random() - 0.5) * 2,
-                                    y: (Math.random() - 0.5) * 2
-                                },
-                                radius :Math.random() * 3,
-                                color: vetcolor[Math.floor(Math.random() * 3)]
-                            }))
-                        }
+                        
+                        
+                        createParticles({
+                            object: invader,
+                            fades: true
+                        })
                         
 
                         setTimeout(() =>{
@@ -341,6 +405,9 @@ function animation() {
                                 return projectile2 === projectile
                             })
                             if(invaderFound && projectileFound){ // colidiram então remove projetil e inimigo.
+                                score += 100
+                                console.log(score)
+                                scoreEl.innerHTML = score
                                 grid.invaders.splice(i,1)
                                 projectiles.splice(j,1)
                             }
@@ -384,6 +451,7 @@ animation()
 
 addEventListener('keydown',(event) =>{ //captura uso das teclas a,d,espaço
     //console.log(event.key)
+    if(game.over) return
     switch (event.key){
         case 'a':
             console.log("esquerda")
