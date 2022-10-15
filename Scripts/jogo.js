@@ -7,7 +7,7 @@ const dificuldade = urlParams.get('dificuldade');
 canvas.width = innerWidth
 canvas.height = innerHeight
 
-
+// ta funcionando
 class Player{
     constructor(){
         
@@ -82,6 +82,21 @@ class Player{
                 this.position.y += speed.y  
             }
         }
+
+        shoot(InvaderProjectiles){
+            InvaderProjectiles.push(new InvaderProjectile({
+                position: {
+                    x:this.position.x + this.width/2,
+                    y: this.position.y + this.height
+                },
+                speed: {
+                    x:0,
+                    y:5
+                }
+            }))
+
+
+        }
     
         }
 
@@ -126,9 +141,11 @@ class Player{
     update() {
         this.position.x += this.speed.x
         this.position.y += this.speed.y
+        this.speed.y = 0
 
         if(this.position.x + this.width >= canvas.width || this.position.x <=0){
             this.speed.x = -this.speed.x
+            this.speed.y = 30
         }
     }
 }
@@ -158,12 +175,67 @@ class Projectile {
   }
 }
 
+class Particle {
+    constructor({ position, speed,radius, color = 'white' }) {
+      this.position = position
+      this.speed = speed
+  
+      this.radius = radius
+      this.color = color
+      this.opacity = 1
+    }
+  
+    draw() {
+        c.save()
+        c.globalAlpha = this.opacity
+        c.beginPath()
+        c.arc(this.position.x, this.position.y, this.radius, 0, Math.PI * 2)
+        c.fillStyle = this.color
+        c.fill()
+        c.closePath()
+        c.restore()
+    }
+  
+    update() {
+      this.draw()
+      this.position.x += this.speed.x
+      this.position.y += this.speed.y
+      this.opacity -= 0.01
+    }
+  }
+
+class InvaderProjectile {
+    constructor({ position, speed, color = 'white' }) {
+      this.position = position
+      this.speed = speed
+      this.width = 3
+      this.height = 10
+  
+      
+      this.color = color
+    }
+  
+    draw() {
+        c.fillStyle = this.color
+        c.fillRect(this.position.x,this.position.y,this.width,this.height)
+    }
+  
+    update() {
+      this.draw()
+      this.position.x += this.speed.x
+      this.position.y += this.speed.y
+    }
+  }
+
     
 
 
 const player = new Player()
 const projectiles = []
-const grids = [new Grid()]
+const grids = []
+const InvaderProjectiles = []
+const particles = []
+
 
 
 
@@ -184,21 +256,103 @@ const keys = { //define como padrão de começo de jogo não ter nenhuma tecla p
     }
 }
 
+let frames = 0
+let spawninteval = (Math.floor(Math.random() * 500) + 500)
+
 function animation() {
+    var vetcolor = ['yellow','blue','white']
     requestAnimationFrame(animation)
     //console.log('teste')
     c.fillStyle = 'black' 
     c.fillRect(0,0,canvas.width,canvas.height)
     
     player.update() //desenha , atualiza speed player
+    particles.forEach((particle,i) =>{
+        if(particle.opacity <= 0){
+            setTimeout(() => {
+                particles.splice(i,1) 
+            }, 0)
+        }else {
+            particle.update()
+        }
+        
+    })
+
+    InvaderProjectiles.forEach((InvaderProjectile,index )=>{
+        if(InvaderProjectile.position.y + InvaderProjectile.height >= canvas.height){ //limpa do vetor tiros inimigos que sairam do canvas
+            setTimeout(() => {
+                InvaderProjectiles.splice(index,1)
+            },0)
+        } else InvaderProjectile.update()
+         //tomou tiro do inimigo colisão
+        if(InvaderProjectile.position.y + InvaderProjectile.height >= player.position.y &&
+             InvaderProjectile.position.x + InvaderProjectile.width >=player.position.x && 
+             InvaderProjectile.position.x <= player.position.x + player.width)
+        console.log("end game")
+    })
+
+
+
+
+
+
     projectiles.forEach(Projectile => {
         Projectile.update()
     })
 
-    grids.forEach(grid => {
+    grids.forEach((grid,gridIndex) => {
         grid.update()
-        grid.invaders.forEach(invader => {
+        //frequencia dos tiros dos inimigos
+        if(frames % 100 === 0 && (grid.invaders.length) > 0){
+            grid.invaders[Math.floor(Math.random() * grid.invaders.length)].shoot(InvaderProjectiles)
+        }
+     
+        grid.invaders.forEach((invader,i)  => {
             invader.update({speed: grid.speed})
+
+            projectiles.forEach((projectile,j) => {
+                if(projectile.position.y - projectile.radius <= invader.position.y + invader.height &&
+                     projectile.position.x + projectile.radius >= invader.position.x && 
+                     projectile.position.x - projectile.radius <= invader.position.x + invader.width &&
+                     projectile.position.y + projectile.radius >= invader.position.y){ //GAMBIARRA DE COLISÃO
+
+                        for (let i = 0; i<15; i++){
+                            particles.push(new Particle({
+                                position: {
+                                    x:invader.position.x + invader.width/2,
+                                    y:invader.position.y + invader.height/2
+                                },
+                                speed : {
+                                    x: (Math.random() - 0.5) * 2,
+                                    y: (Math.random() - 0.5) * 2
+                                },
+                                radius :Math.random() * 3,
+                                color: vetcolor[Math.floor(Math.random() * 3)]
+                            }))
+                        }
+                        
+
+                        setTimeout(() =>{
+                            const invaderFound = grid.invaders.find(invader2 => {//GAMBIARRA DE COLISÃO melhorar mais
+                                return invader2 === invader
+                            })
+
+                            const projectileFound = projectiles.find(projectile2 =>{//GAMBIARRA DE COLISÃO melhorar mais parte 2
+                                return projectile2 === projectile
+                            })
+                            if(invaderFound && projectileFound){ // colidiram então remove projetil e inimigo.
+                                grid.invaders.splice(i,1)
+                                projectiles.splice(j,1)
+                            }
+                            if(grid.invaders.length > 0){
+                                const firtInvader = grid.invaders[0]
+                                const lastInvader = grid.invaders[grid.invaders.length -1]
+                                grid.width = lastInvader.position.x - firtInvader.position.x + lastInvader.width
+                                grid.position.x = firtInvader.position.x
+                            }                            
+                    },0)
+                }
+            })
         })
     })
 
@@ -210,6 +364,17 @@ function animation() {
     else {
         player.speed.x = 0 //parar de andar
     }
+
+    if (frames %  spawninteval === 0) { //spawn rate dos grids de inimigos podemos mudar a dificuldade no jogo aqui também
+        grids.push(new Grid())
+        spawninteval = (Math.floor(Math.random() * 500) + 500)
+        frames = 0
+        console.log(spawninteval) // qual frame vai brotar o proximo inimigo
+    }
+
+    
+
+    frames++ 
 }
 
 
