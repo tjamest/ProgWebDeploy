@@ -5,6 +5,28 @@ const c = canvas.getContext("2d")
 
 const urlParams = new URLSearchParams(window.location.search);
 const dificuldade = urlParams.get('dificuldade');
+var num
+
+switch (dificuldade){
+    case 'facil':
+        num = 100
+        console.log(num)
+        break
+    case 'medio':
+        num = 75
+        console.log(num)
+        break
+    case 'dificil':
+        num = 50
+        console.log(num)
+        break
+
+}
+
+
+
+
+console.log(dificuldade)
 
 canvas.width = 1024 
 canvas.height = 576
@@ -376,7 +398,7 @@ function animation() {
     grids.forEach((grid,gridIndex) => {
         grid.update()
         //frequencia dos tiros dos inimigos
-        if(frames % 100 === 0 && (grid.invaders.length) > 0){
+        if(frames % num === 0 && (grid.invaders.length) > 0){
             grid.invaders[Math.floor(Math.random() * grid.invaders.length)].shoot(InvaderProjectiles)
         }
      
