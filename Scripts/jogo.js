@@ -332,7 +332,10 @@ function createParticles({object,color,fades}){
 }
 
 function animation() {
-    if(!game.active) return
+    if(!game.active){
+        window.location.href = "../Pages/fimdejogo.html?score="+score;
+        return
+    } 
     requestAnimationFrame(animation)
     //console.log('teste')
     c.fillStyle = 'black' 
