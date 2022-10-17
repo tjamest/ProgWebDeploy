@@ -333,7 +333,9 @@ function createParticles({object,color,fades}){
 
 function animation() {
     if(!game.active){
-        window.location.href = "../Pages/fimdejogo.html?score="+score;
+        const dificuldade = urlParams.get('dificuldade');
+        const email = urlParams.get('email');
+        window.location.href = "../Pages/fimdejogo.html?score="+score+"&dificuldade="+dificuldade+"&email="+email;
         return
     } 
     requestAnimationFrame(animation)

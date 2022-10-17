@@ -1,11 +1,17 @@
 window.onload = function () {
     const urlParams = new URLSearchParams(window.location.search);
-    const dificuldade = urlParams.get('dificuldade');
-    const pontuacao = urlParams.get('pontuacao');
+    const pontuacao = urlParams.get('score');
+    const email = urlParams.get('email');
+
+    const congratulate = document.createElement("div");
+    const conteudo = document.createTextNode("Parabens " + email);
+    congratulate.appendChild(conteudo);
+    const divCongratulate = document.getElementById("congratulate");
+    divCongratulate.appendChild(congratulate);
 
     const criarPontuacao = document.createElement("div");
-    const conteudo = document.createTextNode(pontuacao);
-    criarPontuacao.appendChild(conteudo);
+    const conteudo2 = document.createTextNode(pontuacao);
+    criarPontuacao.appendChild(conteudo2);
     const heading = document.getElementById("heading");
     heading.appendChild(criarPontuacao);
 }
