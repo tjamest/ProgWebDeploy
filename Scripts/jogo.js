@@ -335,7 +335,7 @@ function animation() {
     if(!game.active){
         const dificuldade = urlParams.get('dificuldade');
         const email = urlParams.get('email');
-        window.location.href = "../Pages/fimdejogo.html?score="+score+"&dificuldade="+dificuldade+"&email="+email;
+        window.location.href = "../fimdejogo.html?score="+score+"&dificuldade="+dificuldade+"&email="+email;
         return
     } 
     requestAnimationFrame(animation)
